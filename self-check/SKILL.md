@@ -1,11 +1,11 @@
 ---
 name: Self-Check System
 slug: self-check
-version: 6.0.0
-description: "Self-check system with multi-dimensional critical thinking, task-decompose, quality-control, and collaboration. Required for all tasks."
+version: 7.2.0
+description: "Self-check system with multi-dimensional critical thinking, task-decompose, quality-control, collaboration, mandatory checkpoint logging, behavior tracking, and cross-agent memory sync. Required for all tasks."
 ---
 
-# 自检系统 v6.0
+# 自检系统 v7.2
 
 ---
 
@@ -146,3 +146,122 @@ description: "Self-check system with multi-dimensional critical thinking, task-d
 - ❌ 等用户来问才发现问题
 - ❌ 主Agent兼任执行者
 - ❌ 检查标准主观化
+
+---
+
+## 六、自检打卡机制（强制）
+
+**目的：让"真的在想"可追溯、可验证，而不只是"看起来在想"。**
+
+### 6.1 打卡日志文件
+
+每次任务在 `~/.openclaw/workspace-taizi/memory/self-check-logs/` 下生成日志：
+
+```
+self-check-YYYY-MM-DD-任务ID.md
+```
+
+**目录不存在则先创建：**
+```bash
+mkdir -p ~/.openclaw/workspace-taizi/memory/self-check-logs
+```
+
+### 6.2 打卡内容模板
+
+每次交付必须包含以下区块，并在日志中同步记录：
+
+```
+【自检打卡】
+任务ID：JJC-YYYYMMDD-NNN（或临时ID）
+任务类型：[闲聊/简单/复杂/高风险/决策]
+多维思考轮次：[1/2/3+]
+质疑点：[列出你质疑的任何一个前提或方向，不允许写"无"]
+备选方案数量：[1/2/3+]，简述：
+  A. [方案名]：[简述]
+  B. [方案名]：[简述]
+  C. [方案名]：[简述]（如有）
+最终选择：[哪个方案，为什么放弃其他]
+置信度：[0-100%]
+可验证性：[这段思考能被第三人复核吗？]
+
+本次多维思考结论：[1句话总结]
+```
+
+### 6.3 验证机制
+
+| 验证方式 | 内容 | 不通过则 |
+|----------|------|----------|
+| 机器检查（格式） | 交付中是否包含【自检打卡】区块 | 拒绝交付，要求补全 |
+| 机器检查（格式） | 必填字段是否有空值（质疑点/备选方案/置信度等） | 拒绝交付，要求补全 |
+| 人工检查（内容） | 质疑点是否有实质内容，而非"无"或套话 | 标记，要求补充 |
+| 人工检查（内容） | 备选方案是否真正存在对比，而非只有一个方案 | 标记，要求补充 |
+| 人工检查（内容） | "为什么放弃其他方案"是否有实质理由 | 标记，要求补充 |
+
+### 6.4 打卡日志追加规则
+
+- **每次自检打卡同时写入磁盘日志文件**（不只是输出在对话里）
+- 日志文件名格式：`self-check-YYYY-MM-DD-任务ID.md`
+- 如果是闲聊/极简单任务，打卡区块可简化，但必须包含：
+  - 任务类型
+  - 置信度
+  - 本次多维思考结论（一句话）
+- 极简单任务允许合并字段，但不允许删除区块
+
+### 6.5 打卡状态标记
+
+在任务看板的 progress 中追加打卡状态：
+
+```
+python3 scripts/kanban_update.py progress <任务ID> "<当前状态>" "分析🔄|打卡✅|..."
+```
+
+---
+
+## 七、行为追踪表（强制追加）
+
+**每次任务交付前必须先追加行为追踪表：**
+
+```
+【行为追踪追加】自动执行
+时间：[当前时间]
+对话摘要：[简述任务内容]
+用户反馈：[皇上说了/问了/反馈了什么]
+推断偏好：[从行为中推断的偏好，标注待确认]
+确认状态：待确认
+```
+
+**执行顺序（强制）：**
+1. 任务交付前 → 先追加行为追踪表 ✅
+2. 再执行多维批判思考
+3. 再执行自检打卡
+4. 最后交付
+
+**存储位置：** `~/.openclaw/workspace-taizi/memory/behavior-tracker.md`
+
+---
+
+## 八、跨Agent记忆同步（强制）
+
+**触发：皇上说"记住..."**
+
+**同步步骤：**
+1. 写入i7的memory文件（preferences.md/mistakes.md等）
+2. 同时写入Bitable relay，标注【i7记忆同步】
+3. Y7读取后内化到自己的记忆文件
+4. i7在下次心跳时确认Y7已同步
+
+**Bitable格式：**
+```
+【i7记忆同步】
+内容：___（简述要记住的事）
+来源：皇上指令
+时间：___
+写入文件：___
+请Y7同步记住并告知收到
+```
+
+**规则：没有写入Bitable relay = 记忆同步失败 = 必须重试直到成功。**
+
+---
+
+**规则：没有【行为追踪追加】= 禁止交付。**

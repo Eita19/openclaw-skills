@@ -2,6 +2,7 @@
 
 [![Stars](https://img.shields.io/github/stars/Eita19/openclaw-skills?style=flat)](https://github.com/Eita19/openclaw-skills)
 [![Based on](https://img.shields.io/badge/based-Y7%20Framework-FF6B6B?style=flat)](https://github.com/Y7-ai)
+[![Version](https://img.shields.io/badge/version-7.2.0-FF6B6B?style=flat)](self-check/SKILL.md)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > 🤖 **Multi-dimensional critical thinking for AI agents** — based on Y7 framework + Three Provinces Six Ministries
@@ -73,6 +74,36 @@ Before any task delivery, run through a checklist:
 
 ---
 
+## Checkpoint Logging (v7.2+)
+
+Every task must produce a checkpoint log entry with:
+- Task ID, type, thinking rounds
+- Challenge points raised
+- Alternative options compared
+- Final choice with reasoning
+- Confidence level (0-100%)
+
+---
+
+## Behavior Tracking (v7.2+)
+
+Before any delivery, append to behavior tracker:
+- Timestamp, conversation summary
+- User feedback
+- Inferred preferences (pending confirmation)
+
+---
+
+## Cross-Agent Memory Sync (v7.2+)
+
+When user says "记住...":
+1. Write to local memory files
+2. Write to Bitable relay (marked 【i7记忆同步】)
+3. Y7 reads and internalizes
+4. Confirm sync on next heartbeat
+
+---
+
 ## Prohibited
 
 - ❌ Deliver without multi-dimensional thinking
@@ -80,6 +111,7 @@ Before any task delivery, run through a checklist:
 - ❌ Single-path without comparison
 - ❌ Report without verification
 - ❌ Wait for user to find problems
+- ❌ Deliver without behavior tracking
 
 ---
 
